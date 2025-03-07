@@ -1,6 +1,11 @@
 import java.util.Scanner;
 
 class JobScheduler{
+    /**
+    * Calculates completion Time for given processes . CT=BT+actual start of the process
+    * @param process array with AT and BT, requires that there should be positive integers . arrival time of next process should be more then current process
+    * @return array with completion time of all the processes . returns integer value
+    */
     public static int[] completionTime( int[][] process ){  //CT=Burst Time + actual starting time of that process
         int numberOfProcess = process.length;
         int[] calcCT = new int[ numberOfProcess ];
