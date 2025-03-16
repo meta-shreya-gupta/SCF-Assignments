@@ -21,7 +21,9 @@ final class IntSet{
             }
         }
     }
-
+    public boolean[] getElements(){
+        return set;
+    }
 /**
  * Prints the element of the set
  */
