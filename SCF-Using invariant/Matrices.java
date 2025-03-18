@@ -1,32 +1,66 @@
-import java.util.Scanner;
+
 /**
  * Utility class which provides various functions on matrices like checkSparse , traspose , check symmetrical , add and multiply matrices
  */
 final class MatricesOperation{
     private final int row ;                     //private data members to make class immutable
     private final int col ;
-    private final int[][] array ;
+    private final int[][] sparseArray ;
 
-    public MatricesOperation(int row , int col , int[][] array){       //constructor to assign values
+    public MatricesOperation(int row , int col , int[][] sparseArray){       //constructor to assign values
         this.row = row;
         this.col = col;
-        this.array = array;
+        this.sparseArray = sparseArray;
     }
+
+    public int[][] toSparseArray(int[][] matrix){
+        int count = 0;
+        for(int rowIndex = 0 ; rowIndex < row ; rowIndex ++){
+            for(int colIndex = 0 ; colIndex < col ; colIndex ++){
+                if(matrix[rowIndex][colIndex] != 0){
+                    count ++;
+                }
+            }
+        }
+        int[][] sparseArray = new int[3][count];
+        int index = 0;
+        for(int rowIndex = 0 ; rowIndex < row ; rowIndex ++){
+            for(int colIndex = 0 ; colIndex < col ; colIndex ++){
+                if(matrix[rowIndex][colIndex] != 0){
+                    sparseArray[0][index] = rowIndex;
+                    sparseArray[1][index] = colIndex;
+                    sparseArray[2][index] = matrix[rowIndex][colIndex];
+
+                }
+            }
+        }
+        return sparseArray;
+    }
+
+    public int[][] toMatrix(int[][] nonZeroArray){
+        int[][] matrix = new int[row][col];
+        for(int index = 0 ; index < nonZeroArray[0].length ; index ++){
+            matrix[nonZeroArray[0][index]][nonZeroArray[1][index]] = nonZeroArray[2][index];
+        }
+        return matrix;
+    }
+
     /**
      * gives the matrix as an array
      * @return matrix as an array
      */
     public int[][] getArray(){
-        return array;                           //returns the array of the object of the class
+        return sparseArray;                          //returns the array of the object of the class
     }
 
     /**
      * prints the matrix on the screen
      */
     public void printMatrix(){
+        int[][] matrix = toMatrix(sparseArray);
         for(int rowIndex = 0 ; rowIndex < row ; rowIndex ++){           //prints the matrix element wise
             for(int colIndex = 0 ; colIndex < col ; colIndex ++){
-                System.out.print(array[rowIndex][colIndex] + "\t");
+                System.out.print(matrix[rowIndex][colIndex] + "\t");
             }
             System.out.println();
         }
@@ -37,10 +71,11 @@ final class MatricesOperation{
      * @return transposed matrix as an object of MatricesOperation class
      */
     public MatricesOperation transposeOfMatrix(){
+        int[][] input = toMatrix(sparseArray);
         int[][] transposedArray = new int[col][row];                //array to store output
         for(int rowIndex = 0 ; rowIndex < row ; rowIndex ++){
             for(int colIndex = 0 ; colIndex < col ; colIndex ++){
-                transposedArray[colIndex][rowIndex] = array[rowIndex][colIndex];    //exchanges rows to columns and vice-versa
+                transposedArray[colIndex][rowIndex] = input[rowIndex][colIndex];    //exchanges rows to columns and vice-versa
             }
         }
         return new MatricesOperation(col, row, transposedArray);        //returns transposed array as an object of MatricesOperation class
@@ -51,13 +86,15 @@ final class MatricesOperation{
      * @return true if matrix is symmetrical else false
      */
     public boolean isSymmetrical(){
+        int[][] input = toMatrix(sparseArray);
         if(row != col){                         //if rows and columns are not equal then transposed array can't be equal to original
             return false;
         }
         MatricesOperation transposedMatrix = transposeOfMatrix();
+        int[][] transposedArray = toMatrix(transposedMatrix.sparseArray);
         for(int rowIndex = 0 ; rowIndex < row ; rowIndex ++){
             for(int colIndex = 0 ; colIndex < col ; colIndex ++){
-                if(array[rowIndex][colIndex] != transposedMatrix.array[rowIndex][colIndex]){        //if any element do not match then matrix is not symmetrical
+                if(input[rowIndex][colIndex] != transposedArray[rowIndex][colIndex]){        //if any element do not match then matrix is not symmetrical
                     return false;
                 }
             }
@@ -70,15 +107,18 @@ final class MatricesOperation{
      * @param array2 matrix which is to be added
      * @return added matrix as an object of MatricesOperation class
      */
-    public MatricesOperation addMatrices(MatricesOperation array2){
-        int[][] resultMatrix = new int[row][col];                       //array to store addition result
+    public MatricesOperation addMatrices(MatricesOperation sparseArray2){
+        int[][] matrix1 = toMatrix(sparseArray);
+        int[][] matrix2 = toMatrix(sparseArray2.getArray());                       //array to store addition result
+        int[][] resultMatrix = new int[matrix1.length][matrix1[0].length];
         
         for(int rowIndex = 0 ; rowIndex < row ; rowIndex ++){
             for(int colIndex = 0 ; colIndex < col ; colIndex ++){
-                resultMatrix[rowIndex][colIndex] = array[rowIndex][colIndex] + array2.array[rowIndex][colIndex];        //computs the addition result element-wise
+                resultMatrix[rowIndex][colIndex] = matrix1[rowIndex][colIndex] + matrix2[rowIndex][colIndex];        //computs the addition result element-wise
             }
         }
-        return new MatricesOperation(row, col, resultMatrix);                   //returns the output as an object of MatricesOperation class
+        int[][] addResult = toSparseArray(resultMatrix);
+        return new MatricesOperation(row, col, addResult);                   //returns the output as an object of MatricesOperation class
     }
 
     /**
@@ -86,127 +126,34 @@ final class MatricesOperation{
      * @param array2 matrix which is to be multiplied
      * @return multiplied matrix as an object of MatricesOperation class
      */
-    public MatricesOperation multiplyMatrices(MatricesOperation array2){
-        int row2 = array2.array.length;
-        int col2 = array2.array[0].length;
+    public MatricesOperation multiplyMatrices(MatricesOperation sparseArray2){
+        int[][] matrix1 = toMatrix(sparseArray);
+        int[][] matrix2 = toMatrix(sparseArray2.getArray());
+        int row2 = matrix1[0].length;
+        int col2 = matrix2[0].length;
 
         int[][] resultMatrix = new int[row][col2];                      //matrix to store the multiplicated result
 
         for(int rowIndex = 0 ; rowIndex < row ; rowIndex ++){
             for(int colIndex = 0 ; colIndex < col2 ; colIndex ++){
                 for(int nextRowIndex = 0 ; nextRowIndex < row2 ; nextRowIndex++){
-                    resultMatrix[rowIndex][colIndex] += array[rowIndex][nextRowIndex] * array2.array[nextRowIndex][colIndex];       //computes the multiplication
+                    resultMatrix[rowIndex][colIndex] += matrix1[rowIndex][nextRowIndex] * matrix2[nextRowIndex][colIndex];       //computes the multiplication
                 }
             }
         }
-        return new MatricesOperation(row, col2, resultMatrix);              //returns the multiplicated result as an object of MatricesOperation class
-    }
-    public MatricesOperation toMatrix(int[][] nonZeroArray){
-        int[][] matrix = new int[row][col];
-        for(int index = 0 ; index < nonZeroArray[0].length ; index ++){
-            matrix[nonZeroArray[0][index]][nonZeroArray[1][index]] = nonZeroArray[2][index];
-        }
-        return new MatricesOperation(row, col, matrix);
+        int[][] multiplyResult = toSparseArray(resultMatrix);
+        return new MatricesOperation(row, col2, multiplyResult);              //returns the multiplicated result as an object of MatricesOperation class
     }
 }
 class Matrices{
     public static void main(String[] args){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Enter number of rows");             //enter rows of original array
-        int row = sc.nextInt();
-        System.out.println("Enter number of columns");          //enter columns of original array
-        int col = sc.nextInt();
-        int[][] array = new int[row][col];
-        System.out.println("Enter number of non-zero elements");    //enter number of non-zero elements
-        int count = sc.nextInt();
-        try{
-            if(count>(row*col)/2){                                  //throws custom exception if matrix is not sparse
-                sc.close();
-                throw new SparseException("Matrix is not sparse");
-            }
-        }
-        catch(SparseException e){
-            System.out.println(e.getMessage());
-            System.exit(0);
-        }
-        int[][] nonZeroArray = new int[3][count];
-        MatricesOperation firstArray = new MatricesOperation(row , col , array);
-        System.out.println("Enter row and column and non-zero element");
-        for(int colIndex = 0 ; colIndex < count ; colIndex ++){
-            System.out.print("Enter row : ");
-            nonZeroArray[0][colIndex] = sc.nextInt();
-            System.out.print("Enter column : ");
-            nonZeroArray[1][colIndex] = sc.nextInt();
-            System.out.print("Enter element : ");
-            nonZeroArray[2][colIndex] = sc.nextInt();
-        }
-        MatricesOperation firstMatrix = firstArray.toMatrix(nonZeroArray);
-        System.out.println("Enter\n1. Find transpose\n2. Add matrices\n3. Multiply matrices\n4. Exit");     //takes choice from the user
-        int choice = sc.nextInt();
-        switch(choice){
-            case 1 :                                                    //if user wants transpose of matrix
-                MatricesOperation transposedArray = firstMatrix.transposeOfMatrix();
-                transposedArray.printMatrix();
-                break;
-            case 2 : 
-                System.out.println("Enter number of rows");         //takes rows of second matrix
-                int row2 = sc.nextInt();
-                System.out.println("Enter number of columns");      //takes columns of second matrix
-                int col2 = sc.nextInt();
-                try{
-                    if(row != row2 || col != col2){                 //throws exception if addition is not possible
-                        throw new SparseException("Addition is not possible due to different sizes");
-                    }
-                }
-                catch(SparseException e){
-                    System.out.println(e.getMessage());
-                    System.exit(0);
-                }
-                int[][] array2 = new int[row2][col2];
-                System.out.println("Enter elements row wise");      //enter elements row-wise
-                for(int rowIndex = 0 ; rowIndex < row2 ; rowIndex ++){
-                    for(int colIndex = 0 ; colIndex < col2 ; colIndex ++){
-                        array2[rowIndex][colIndex] = sc.nextInt();
-                    }
-                }
-                MatricesOperation secondArray = new MatricesOperation(row2, col2, array2);
-                MatricesOperation addResult = firstMatrix.addMatrices(secondArray);  //computes the result
-                addResult.printMatrix();                            //print the result
-                break;
-            case 3 :
-                System.out.println("Enter number of rows");         //takes rows of second array
-                int nextRow = sc.nextInt();
-                System.out.println("Enter number of columns");      //takes columns of second array
-                int nextCol = sc.nextInt();
-                try{
-                    if(col != nextRow){                                                        //throws exception if multiplication is not possible
-                        throw new SparseException("Multiplication is not possible");
-                    }
-                }
-                catch(SparseException e){
-                    System.out.println(e.getMessage());
-                    System.exit(0);
-                }
-                int[][] nextArray = new int[nextRow][nextCol];
-                System.out.println("Enter elements row wise");      //enter elements row-wise
-                for(int rowIndex = 0 ; rowIndex < nextRow ; rowIndex ++){
-                    for(int colIndex = 0 ; colIndex < nextCol ; colIndex ++){
-                        nextArray[rowIndex][colIndex] = sc.nextInt();
-                    }
-                }
-                MatricesOperation secondArr = new MatricesOperation(nextRow, nextCol, nextArray);
-                MatricesOperation multiplyResult = firstMatrix.multiplyMatrices(secondArr);      //computes the multiplication
-                multiplyResult.printMatrix();                           //prints the multiplicated array
-                break;
-            case 4 :
-            sc.close();
-            System.exit(0);
-        }
-    }
-}
-
-class SparseException extends Exception {           //custom exception to print the exception message
-    public SparseException(String m) {
-        super(m);
+        int[][] matrix1 = {{0,1,2,2,3,4},{4,1,0,3,5,2},{9,8,4,2,5,2}};
+        int[][] matrix2 = {{0,1,2,2,3,4},{4,1,0,3,5,2},{9,8,4,2,5,2}};
+        MatricesOperation input1 = new MatricesOperation(5, 6, matrix1);
+        MatricesOperation input2 = new MatricesOperation(5, 6, matrix2);
+        MatricesOperation addResult = input1.addMatrices(input2);
+        addResult.printMatrix();
+        MatricesOperation multiplyResult = input1.multiplyMatrices(input2);
+        multiplyResult.printMatrix();
     }
 }
