@@ -101,6 +101,13 @@ final class MatricesOperation{
         }
         return new MatricesOperation(row, col2, resultMatrix);              //returns the multiplicated result as an object of MatricesOperation class
     }
+    public MatricesOperation toMatrix(int[][] nonZeroArray){
+        int[][] matrix = new int[row][col];
+        for(int index = 0 ; index < nonZeroArray[0].length ; index ++){
+            matrix[nonZeroArray[0][index]][nonZeroArray[1][index]] = nonZeroArray[2][index];
+        }
+        return new MatricesOperation(row, col, matrix);
+    }
 }
 class Matrices{
     public static void main(String[] args){
@@ -122,23 +129,23 @@ class Matrices{
             System.out.println(e.getMessage());
             System.exit(0);
         }
+        int[][] nonZeroArray = new int[3][count];
         MatricesOperation firstArray = new MatricesOperation(row , col , array);
         System.out.println("Enter row and column and non-zero element");
-        while(count>0){                                             //takes input the location of the non-zero element and the element
-            System.out.println("Enter row");
-            int rowNumber = sc.nextInt() - 1;
-            System.out.println("Enter column");
-            int colNumber = sc.nextInt() - 1;
-            System.out.println("Enter element");
-            int element = sc.nextInt();
-            array[rowNumber][colNumber] = element;
-            count --;
+        for(int colIndex = 0 ; colIndex < count ; colIndex ++){
+            System.out.print("Enter row : ");
+            nonZeroArray[0][colIndex] = sc.nextInt();
+            System.out.print("Enter column : ");
+            nonZeroArray[1][colIndex] = sc.nextInt();
+            System.out.print("Enter element : ");
+            nonZeroArray[2][colIndex] = sc.nextInt();
         }
+        MatricesOperation firstMatrix = firstArray.toMatrix(nonZeroArray);
         System.out.println("Enter\n1. Find transpose\n2. Add matrices\n3. Multiply matrices\n4. Exit");     //takes choice from the user
         int choice = sc.nextInt();
         switch(choice){
             case 1 :                                                    //if user wants transpose of matrix
-                MatricesOperation transposedArray = firstArray.transposeOfMatrix();
+                MatricesOperation transposedArray = firstMatrix.transposeOfMatrix();
                 transposedArray.printMatrix();
                 break;
             case 2 : 
@@ -163,7 +170,7 @@ class Matrices{
                     }
                 }
                 MatricesOperation secondArray = new MatricesOperation(row2, col2, array2);
-                MatricesOperation addResult = firstArray.addMatrices(secondArray);  //computes the result
+                MatricesOperation addResult = firstMatrix.addMatrices(secondArray);  //computes the result
                 addResult.printMatrix();                            //print the result
                 break;
             case 3 :
@@ -188,7 +195,7 @@ class Matrices{
                     }
                 }
                 MatricesOperation secondArr = new MatricesOperation(nextRow, nextCol, nextArray);
-                MatricesOperation multiplyResult = firstArray.multiplyMatrices(secondArr);      //computes the multiplication
+                MatricesOperation multiplyResult = firstMatrix.multiplyMatrices(secondArr);      //computes the multiplication
                 multiplyResult.printMatrix();                           //prints the multiplicated array
                 break;
             case 4 :
