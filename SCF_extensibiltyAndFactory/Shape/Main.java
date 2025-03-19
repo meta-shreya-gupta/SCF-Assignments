@@ -20,6 +20,11 @@ public class Main {
         dimensions.clear();
         dimensions.add(11);
         Shape shape3 = ShapeFactory.createShape(ShapeType.Square, new Point(5,5), dimensions);
+        dimensions.clear();
+        dimensions.add(3);
+        dimensions.add(4);
+        dimensions.add(5);
+        Shape shape4 = ShapeFactory.createShape(ShapeType.Triangle, new Point(5,5), dimensions);
         if(screen.addShape(shape1)){
             System.out.println(shape1.getType() + "Added to screen");
         }
@@ -39,6 +44,12 @@ public class Main {
         }
         else{
             System.out.println(shape3.getType() + "Cannot be added to screen");
+        }
+        if(screen.addShape(shape4)){
+            System.out.println(shape4.getType() + "Added to screen");
+        }
+        else{
+            System.out.println(shape4.getType() + "Cannot be added to screen");
         }
         Point newPoint = new Point(20,20);
         List<Shape> shapes = screen.getEnclosedShapes(newPoint);
