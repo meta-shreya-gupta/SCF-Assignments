@@ -23,6 +23,7 @@ public class ShapeFactory {
                 break;
             case RegularPolygon :
                 shape = new RegularPolygon(origin ,dimensions);
+                break;
             default :
                 System.out.println("Cannot create shape");
         }
