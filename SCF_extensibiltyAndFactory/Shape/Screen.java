@@ -84,15 +84,14 @@ public class Screen {
                     }
                 });
                 break;
-            // case "Timestamp" :
-                // Arrays.sort(arrange , new Comparator<Shape>() {
-                //     @Override
-                //     public int compare(Shape s1 , Shape s2){
-                //         return LocalTime.compare(s1.getTimestamp() , s2.getTimestamp());
-                //     }
-                // });
-                // arrange.sort((a,b) => a.getTimestamp() - b.getTimestamp());
-                // break;
+            case "Timestamp" :
+                Arrays.sort(arrange , new Comparator<Shape>() {
+                    @Override
+                    public int compare(Shape s1 , Shape s2){
+                        return s1.getTimestamp().compareTo(s2.getTimestamp());
+                    }
+                });
+                break;
             default :
                 System.out.println("Cannot arrange on this basis");
         }
